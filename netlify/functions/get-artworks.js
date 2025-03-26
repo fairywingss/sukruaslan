@@ -6,19 +6,35 @@ exports.handler = async function(event, context) {
         // Netlify Functions'ın çalışma dizinini logla
         console.log('Current working directory (__dirname):', __dirname);
 
-        // Projenin kök dizinine göre göreli yol
-        const projectRoot = path.resolve(__dirname, '../..');
+        // Projenin kök dizini olarak /var/task kullan
+        const projectRoot = '/var/task';
         console.log('Project root directory:', projectRoot);
+
+        // Projenin kök dizinindeki tüm dosyaları ve klasörleri logla
+        const rootFiles = await fs.readdir(projectRoot);
+        console.log('Files and directories in project root:', rootFiles);
 
         const artworksDir = path.join(projectRoot, 'data', 'artworks');
         console.log('Artworks directory path:', artworksDir);
 
-        // Klasörün varlığını kontrol et
+        // data/ klasörünün varlığını kontrol et
+        const dataDir = path.join(projectRoot, 'data');
+        try {
+            await fs.access(dataDir);
+            console.log('data/ directory exists!');
+            const dataDirFiles = await fs.readdir(dataDir);
+            console.log('Files and directories in data/ directory:', dataDirFiles);
+        } catch (error) {
+            console.error('data/ directory access error:', error);
+            throw new Error(`data/ klasörü bulunamadı: ${dataDir}`);
+        }
+
+        // data/artworks/ klasörünün varlığını kontrol et
         try {
             await fs.access(artworksDir);
             console.log('Artworks directory exists!');
         } catch (error) {
-            console.error('Access error:', error);
+            console.error('Artworks directory access error:', error);
             throw new Error(`Klasör bulunamadı: ${artworksDir}`);
         }
 
