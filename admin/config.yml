@@ -1,0 +1,25 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads" # Resimlerin yükleneceği klasör
+public_folder: "/images/uploads" # Resimlerin sitede erişileceği yol
+
+collections:
+  - name: "artworks"
+    label: "Eserler"
+    folder: "data/artworks"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Eser Adı", name: "title", widget: "string" }
+      - { label: "Kategori", name: "category", widget: "select", options: ["resim", "heykel"] }
+      - { label: "Ana Resim", name: "main_image", widget: "image" }
+      - { label: "Detay Resim 1", name: "detail_image_1", widget: "image", required: false }
+      - { label: "Detay Resim 2", name: "detail_image_2", widget: "image", required: false }
+      - { label: "Açıklama (Türkçe)", name: "description_tr", widget: "text" }
+      - { label: "Açıklama (İngilizce)", name: "description_en", widget: "text" }
+      - { label: "Malzeme (Türkçe)", name: "material_tr", widget: "string" }
+      - { label: "Boyut (Türkçe)", name: "size_tr", widget: "string" }
+      - { label: "Malzeme (İngilizce)", name: "material_en", widget: "string" }
+      - { label: "Boyut (İngilizce)", name: "size_en", widget: "string" }
