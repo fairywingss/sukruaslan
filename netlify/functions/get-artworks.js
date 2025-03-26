@@ -3,7 +3,8 @@ const path = require('path');
 
 exports.handler = async function(event, context) {
     try {
-        const artworksDir = path.join(__dirname, '..', '..', 'data', 'artworks');
+        // Projenin kök dizinine göre göreli yol
+        const artworksDir = path.resolve(__dirname, '../../data/artworks');
         const files = await fs.readdir(artworksDir);
 
         const artworks = await Promise.all(files.map(async (file) => {
