@@ -15,10 +15,13 @@ let hasAppeared = [];
 let isProfileVisible = true;
 let isAutoScrollPaused = false;
 
-// Eserleri JSON dosyasından yükleme
+// Eserleri Netlify Function üzerinden yükleme
 async function loadArtworks() {
     try {
-        const response = await fetch('/data/artworks.json');
+        const response = await fetch('/api/get-artworks');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
         const loadedArtworks = await response.json();
 
         // Eserleri HTML'e ekle
