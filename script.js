@@ -15,23 +15,11 @@ let hasAppeared = [];
 let isProfileVisible = true;
 let isAutoScrollPaused = false;
 
-// Eserleri veri dosyasından yükleme
+// Eserleri JSON dosyasından yükleme
 async function loadArtworks() {
     try {
-        const response = await fetch('/data/artworks/');
-        const files = await response.json();
-        const artworkPromises = files.map(async (file) => {
-            const fileResponse = await fetch(`/data/artworks/${file.name}`);
-            const text = await fileResponse.text();
-            const frontMatter = text.split('---')[1].trim();
-            const artworkData = {};
-            frontMatter.split('\n').forEach(line => {
-                const [key, value] = line.split(':').map(part => part.trim());
-                artworkData[key] = value;
-            });
-            return artworkData;
-        });
-        const loadedArtworks = await Promise.all(artworkPromises);
+        const response = await fetch('/data/artworks.json');
+        const loadedArtworks = await response.json();
 
         // Eserleri HTML'e ekle
         loadedArtworks.forEach((artwork, index) => {
@@ -459,6 +447,21 @@ function resetAutoScroll() {
 // Eserleri yükle ve başlat
 let loadedArtworks = [];
 loadArtworks().then(() => {
+    loadedArtworks = Array.from(document.querySelectorAll('.artwork')).map(art => {
+        const label = art.querySelector('.label');
+        return {
+            main_image: art.querySelector('.artwork-image').src,
+            detail_image_1: art.querySelector('.artwork-image').getAttribute('data-detail-image-1'),
+            detail_image_2: art.querySelector('.artwork-image').getAttribute('data-detail-image-2'),
+            title: label.querySelector('h2').textContent,
+            description_tr: label.querySelector('p:not(.artwork-details)').getAttribute('data-lang-tr'),
+            description_en: label.querySelector('p:not(.artwork-details)').getAttribute('data-lang-en'),
+            material_tr: label.querySelector('.artwork-details').getAttribute('data-lang-tr').split(', ')[0].split(': ')[1],
+            size_tr: label.querySelector('.artwork-details').getAttribute('data-lang-tr').split(', ')[1],
+            material_en: label.querySelector('.artwork-details').getAttribute('data-lang-en').split(', ')[0].split(': ')[1],
+            size_en: label.querySelector('.artwork-details').getAttribute('data-lang-en').split(', ')[1]
+        };
+    });
     setupArtworkImages();
     goToSlide(0);
     startAutoScroll();
