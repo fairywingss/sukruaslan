@@ -5,18 +5,31 @@ exports.handler = async function(event, context) {
     try {
         // Projenin kök dizinine göre göreli yol
         const artworksDir = path.resolve(__dirname, '../../data/artworks');
+        console.log('Artworks directory path:', artworksDir); // Hata ayıklama için log
+
+        // Klasörün varlığını kontrol et
+        try {
+            await fs.access(artworksDir);
+        } catch (error) {
+            throw new Error(`Klasör bulunamadı: ${artworksDir}`);
+        }
+
         const files = await fs.readdir(artworksDir);
+        console.log('Files in artworks directory:', files); // Hata ayıklama için log
 
         const artworks = await Promise.all(files.map(async (file) => {
             if (!file.endsWith('.md')) return null;
             const filePath = path.join(artworksDir, file);
             const content = await fs.readFile(filePath, 'utf8');
-            const frontMatter = content.split('---')[1].trim();
-            const artworkData = {};
+            const frontMatter = content.split('---')[1]?.trim();
+            if (!frontMatter) return null;
 
+            const artworkData = {};
             frontMatter.split('\n').forEach(line => {
                 const [key, value] = line.split(':').map(part => part.trim());
-                artworkData[key] = value;
+                if (key && value) {
+                    artworkData[key] = value;
+                }
             });
 
             return artworkData;
@@ -27,6 +40,7 @@ exports.handler = async function(event, context) {
             body: JSON.stringify(artworks.filter(artwork => artwork !== null))
         };
     } catch (error) {
+        console.error('Hata:', error); // Hata ayıklama için log
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Eserler yüklenirken hata oluştu: ' + error.message })
