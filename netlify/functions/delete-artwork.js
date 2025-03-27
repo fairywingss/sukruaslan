@@ -1,5 +1,3 @@
-const fs = require('fs').promises;
-const path = require('path');
 const { Octokit } = require('@octokit/rest');
 
 exports.handler = async function (event, context) {
@@ -16,13 +14,24 @@ exports.handler = async function (event, context) {
         const { index } = JSON.parse(event.body);
 
         // Mevcut artworks.json dosyasını oku
-        const artworksPath = path.join(__dirname, '..', '..', 'data', 'artworks.json');
+        const repoOwner = 'sukruaslan';
+        const repoName = 'sukruaslanart';
+        const branch = 'main';
+
         let artworks = [];
+        let sha;
         try {
-            const data = await fs.readFile(artworksPath, 'utf8');
-            artworks = JSON.parse(data);
+            const { data } = await octokit.repos.getContent({
+                owner: repoOwner,
+                repo: repoName,
+                path: 'data/artworks.json',
+                ref: branch
+            });
+            sha = data.sha;
+            const content = Buffer.from(data.content, 'base64').toString('utf8');
+            artworks = JSON.parse(content);
         } catch (error) {
-            if (error.code !== 'ENOENT') throw error;
+            if (error.status !== 404) throw error;
         }
 
         // Esri sil
@@ -33,25 +42,6 @@ exports.handler = async function (event, context) {
 
         // artworks.json dosyasını güncelle
         const newArtworksJson = JSON.stringify(artworks, null, 2);
-
-        // GitHub'a commit yap
-        const repoOwner = 'sukruaslan';
-        const repoName = 'sukruaslanart';
-        const branch = 'main';
-
-        let sha;
-        try {
-            const { data } = await octokit.repos.getContent({
-                owner: repoOwner,
-                repo: repoName,
-                path: 'data/artworks.json',
-                ref: branch
-            });
-            sha = data.sha;
-        } catch (error) {
-            if (error.status !== 404) throw error;
-        }
-
         await octokit.repos.createOrUpdateFileContents({
             owner: repoOwner,
             repo: repoName,
