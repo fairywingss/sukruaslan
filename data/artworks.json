@@ -1,0 +1,93 @@
+[
+    {
+        "title": "MECZUP",
+        "category": "resim",
+        "main_image": "/images/art1.jpg",
+        "detail_image_1": "/images/art1-detail1.jpg",
+        "detail_image_2": "/images/art1-detail2.jpg",
+        "description_tr": "Zihnin düğümlü karmaşası",
+        "description_en": "The knotted chaos of the mind",
+        "material_tr": "T.Ü.A.B",
+        "size_tr": "80x100, 2025",
+        "material_en": "T.Ü.A.B",
+        "size_en": "80x100, 2025"
+    },
+    {
+        "title": "MECZUP",
+        "category": "resim",
+        "main_image": "/images/art2.jpg",
+        "detail_image_1": "/images/art2-detail1.jpg",
+        "detail_image_2": "/images/art2-detail2.jpg",
+        "description_tr": "Düşüncelerin iç içe geçmiş kaosu",
+        "description_en": "The intertwined chaos of thoughts",
+        "material_tr": "T.Ü.A.B",
+        "size_tr": "80x100, 2025",
+        "material_en": "T.Ü.A.B",
+        "size_en": "80x100, 2025"
+    },
+    {
+        "title": "MECZUP",
+        "category": "resim",
+        "main_image": "/images/art3.jpg",
+        "detail_image_1": "/images/art3-detail1.jpg",
+        "detail_image_2": "/images/art3-detail2.jpg",
+        "description_tr": "Akıl ve duyguların renkli karmaşası",
+        "description_en": "The colorful chaos of mind and emotions",
+        "material_tr": "T.Ü.A.B",
+        "size_tr": "80x100, 2025",
+        "material_en": "T.Ü.A.B",
+        "size_en": "80x100, 2025"
+    },
+    {
+        "title": "Vardım, Varım, Var Olacağım",
+        "category": "heykel",
+        "main_image": "/images/heykel1.webp",
+        "detail_image_1": "/images/heykel1-detail1.webp",
+        "detail_image_2": "/images/heykel1-detail2.webp",
+        "description_tr": "Metal Sanatı",
+        "description_en": "Metal Art",
+        "material_tr": "Metal",
+        "size_tr": "16 x 61 x 9 cm",
+        "material_en": "Metal",
+        "size_en": "16 x 61 x 9 cm"
+    },
+    {
+        "title": "Harese",
+        "category": "heykel",
+        "main_image": "/images/heykel2.webp",
+        "detail_image_1": "/images/heykel2-detail1.webp",
+        "detail_image_2": "/images/heykel2-detail2.webp",
+        "description_tr": "Metal Sanatı",
+        "description_en": "Metal Art",
+        "material_tr": "Metal",
+        "size_tr": "68 x 46 x 20 cm",
+        "material_en": "Metal",
+        "size_en": "68 x 46 x 20 cm"
+    },
+    {
+        "title": "Bir Hayalim Var",
+        "category": "heykel",
+        "main_image": "/images/heykel3.webp",
+        "detail_image_1": "/images/heykel3-detail1.webp",
+        "detail_image_2": "/images/heykel3-detail2.webp",
+        "description_tr": "Metal Sanatı",
+        "description_en": "Metal Art",
+        "material_tr": "Metal",
+        "size_tr": "35 x 63 x 25 cm",
+        "material_en": "Metal",
+        "size_en": "35 x 63 x 25 cm"
+    },
+    {
+        "title": "Don Kişot’un Düşüşü",
+        "category": "heykel",
+        "main_image": "/images/uploads/don-kisotun-dususu-main.jpg",
+        "detail_image_1": "/images/uploads/don-kisotun-dususu-detail1.jpg",
+        "detail_image_2": "/images/uploads/don-kisotun-dususu-detail2.jpg",
+        "description_tr": "Don Kişot’un düşüşünü anlatan bir heykel",
+        "description_en": "A sculpture depicting the fall of Don Quixote",
+        "material_tr": "Metal",
+        "size_tr": "50 x 30 x 20 cm",
+        "material_en": "Metal",
+        "size_en": "50 x 30 x 20 cm"
+    }
+]
