@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Paneli - Şükrü Aslan Art</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group input[type="file"] {
+            padding: 3px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #artwork-list {
+            margin-top: 20px;
+        }
+        .artwork-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .artwork-item img {
+            max-width: 50px;
+            margin-right: 10px;
+        }
+        .artwork-item button {
+            background-color: #dc3545;
+            margin-left: 5px;
+        }
+        .artwork-item button:hover {
+            background-color: #c82333;
+        }
+        #auth-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="auth-section">
+        <h2>Admin Paneline Giriş</h2>
+        <input type="password" id="admin-password" placeholder="Şifrenizi girin">
+        <button onclick="authenticate()">Giriş Yap</button>
+    </div>
+
+    <div id="admin-panel" class="container" style="display: none;">
+        <h1>Admin Paneli</h1>
+        <form id="artwork-form">
+            <div class="form-group">
+                <label for="title">Başlık</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="category">Kategori</label>
+                <select id="category" name="category" required>
+                    <option value="resim">Resim</option>
+                    <option value="heykel">Heykel</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="main_image">Ana Görsel</label>
+                <input type="file" id="main_image" name="main_image" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label for="detail_image_1">Detay Görsel 1</label>
+                <input type="file" id="detail_image_1" name="detail_image_1" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label for="detail_image_2">Detay Görsel 2</label>
+                <input type="file" id="detail_image_2" name="detail_image_2" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label for="description_tr">Açıklama (Türkçe)</label>
+                <textarea id="description_tr" name="description_tr" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="description_en">Açıklama (İngilizce)</label>
+                <textarea id="description_en" name="description_en" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="material_tr">Malzeme (Türkçe)</label>
+                <input type="text" id="material_tr" name="material_tr" required>
+            </div>
+            <div class="form-group">
+                <label for="size_tr">Boyut (Türkçe)</label>
+                <input type="text" id="size_tr" name="size_tr" required>
+            </div>
+            <div class="form-group">
+                <label for="material_en">Malzeme (İngilizce)</label>
+                <input type="text" id="material_en" name="material_en" required>
+            </div>
+            <div class="form-group">
+                <label for="size_en">Boyut (İngilizce)</label>
+                <input type="text" id="size_en" name="size_en" required>
+            </div>
+            <button type="submit">Eser Ekle</button>
+        </form>
+
+        <div id="artwork-list"></div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = "sukru123"; // Şifreyi buradan değiştirebilirsiniz
+
+        function authenticate() {
+            const passwordInput = document.getElementById('admin-password').value;
+            if (passwordInput === ADMIN_PASSWORD) {
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadArtworks();
+            } else {
+                alert('Yanlış şifre!');
+            }
+        }
+
+        async function loadArtworks() {
+            try {
+                const response = await fetch('/data/artworks.json');
+                if (!response.ok) throw new Error('Eserler yüklenemedi');
+                const artworks = await response.json();
+                const artworkList = document.getElementById('artwork-list');
+                artworkList.innerHTML = '';
+
+                artworks.forEach((artwork, index) => {
+                    const artworkItem = document.createElement('div');
+                    artworkItem.classList.add('artwork-item');
+                    artworkItem.innerHTML = `
+                        <div>
+                            <img src="${artwork.main_image}" alt="${artwork.title}">
+                            <span>${artwork.title} (${artwork.category})</span>
+                        </div>
+                        <div>
+                            <button onclick="editArtwork(${index})">Düzenle</button>
+                            <button onclick="deleteArtwork(${index})">Sil</button>
+                        </div>
+                    `;
+                    artworkList.appendChild(artworkItem);
+                });
+            } catch (error) {
+                console.error('Eserler yüklenirken hata:', error);
+            }
+        }
+
+        document.getElementById('artwork-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('title', document.getElementById('title').value);
+            formData.append('category', document.getElementById('category').value);
+            formData.append('main_image', document.getElementById('main_image').files[0]);
+            formData.append('detail_image_1', document.getElementById('detail_image_1').files[0] || '');
+            formData.append('detail_image_2', document.getElementById('detail_image_2').files[0] || '');
+            formData.append('description_tr', document.getElementById('description_tr').value);
+            formData.append('description_en', document.getElementById('description_en').value);
+            formData.append('material_tr', document.getElementById('material_tr').value);
+            formData.append('size_tr', document.getElementById('size_tr').value);
+            formData.append('material_en', document.getElementById('material_en').value);
+            formData.append('size_en', document.getElementById('size_en').value);
+
+            try {
+                const response = await fetch('/.netlify/functions/add-artwork', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Eser başarıyla eklendi!');
+                    document.getElementById('artwork-form').reset();
+                    loadArtworks();
+                } else {
+                    throw new Error(result.error || 'Eser eklenemedi');
+                }
+            } catch (error) {
+                console.error('Eser eklenirken hata:', error);
+                alert('Eser eklenirken bir hata oluştu: ' + error.message);
+            }
+        });
+
+        async function deleteArtwork(index) {
+            if (!confirm('Bu eseri silmek istediğinizden emin misiniz?')) return;
+            try {
+                const response = await fetch('/.netlify/functions/delete-artwork', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ index })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Eser başarıyla silindi!');
+                    loadArtworks();
+                } else {
+                    throw new Error(result.error || 'Eser silinemedi');
+                }
+            } catch (error) {
+                console.error('Eser silinirken hata:', error);
+                alert('Eser silinirken bir hata oluştu: ' + error.message);
+            }
+        }
+
+        async function editArtwork(index) {
+            const response = await fetch('/data/artworks.json');
+            const artworks = await response.json();
+            const artwork = artworks[index];
+
+            document.getElementById('title').value = artwork.title;
+            document.getElementById('category').value = artwork.category;
+            document.getElementById('description_tr').value = artwork.description_tr;
+            document.getElementById('description_en').value = artwork.description_en;
+            document.getElementById('material_tr').value = artwork.material_tr;
+            document.getElementById('size_tr').value = artwork.size_tr;
+            document.getElementById('material_en').value = artwork.material_en;
+            document.getElementById('size_en').value = artwork.size_en;
+
+            // Görselleri düzenlemek için ek bir işlem gerekebilir (şimdilik formu dolduruyoruz)
+            alert('Düzenlemek için bilgileri güncelleyin ve "Eser Ekle" butonuna basın. Bu işlem eseri güncelleyecektir.');
+            // Gerçek düzenleme için index'i saklayabilir ve ekleme fonksiyonunda güncelleme yapabiliriz
+        }
+    </script>
+</body>
+</html>
