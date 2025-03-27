@@ -1,10 +1,4 @@
-const fs = require('fs').promises;
-const path = require('path');
 const { Octokit } = require('@octokit/rest');
-const { createWriteStream } = require('fs');
-const { pipeline } = require('stream');
-const util = require('util');
-const streamPipeline = util.promisify(pipeline);
 
 exports.handler = async function (event, context) {
     try {
@@ -48,51 +42,71 @@ exports.handler = async function (event, context) {
             }
         }
 
-        // Görselleri yükle
-        const uploadDir = path.join(__dirname, '..', '..', 'images', 'uploads');
-        await fs.mkdir(uploadDir, { recursive: true });
+        // Görselleri GitHub'a yükle
+        const repoOwner = 'sukruaslan';
+        const repoName = 'sukruaslanart';
+        const branch = 'main';
 
-        const mainImagePath = `/images/uploads/${Date.now()}-${files.main_image.filename}`;
-        await streamPipeline(
-            Buffer.from(files.main_image.content),
-            createWriteStream(path.join(__dirname, '..', '..', mainImagePath))
-        );
+        const mainImagePath = `images/uploads/${Date.now()}-${files.main_image.filename}`;
+        await octokit.repos.createOrUpdateFileContents({
+            owner: repoOwner,
+            repo: repoName,
+            path: mainImagePath,
+            message: `Upload main image for artwork: ${fields.title}`,
+            content: files.main_image.content.toString('base64'),
+            branch: branch
+        });
 
         let detailImage1Path = '';
         if (files.detail_image_1) {
-            detailImage1Path = `/images/uploads/${Date.now()}-${files.detail_image_1.filename}`;
-            await streamPipeline(
-                Buffer.from(files.detail_image_1.content),
-                createWriteStream(path.join(__dirname, '..', '..', detailImage1Path))
-            );
+            detailImage1Path = `images/uploads/${Date.now()}-${files.detail_image_1.filename}`;
+            await octokit.repos.createOrUpdateFileContents({
+                owner: repoOwner,
+                repo: repoName,
+                path: detailImage1Path,
+                message: `Upload detail image 1 for artwork: ${fields.title}`,
+                content: files.detail_image_1.content.toString('base64'),
+                branch: branch
+            });
         }
 
         let detailImage2Path = '';
         if (files.detail_image_2) {
-            detailImage2Path = `/images/uploads/${Date.now()}-${files.detail_image_2.filename}`;
-            await streamPipeline(
-                Buffer.from(files.detail_image_2.content),
-                createWriteStream(path.join(__dirname, '..', '..', detailImage2Path))
-            );
+            detailImage2Path = `images/uploads/${Date.now()}-${files.detail_image_2.filename}`;
+            await octokit.repos.createOrUpdateFileContents({
+                owner: repoOwner,
+                repo: repoName,
+                path: detailImage2Path,
+                message: `Upload detail image 2 for artwork: ${fields.title}`,
+                content: files.detail_image_2.content.toString('base64'),
+                branch: branch
+            });
         }
 
         // Mevcut artworks.json dosyasını oku
-        const artworksPath = path.join(__dirname, '..', '..', 'data', 'artworks.json');
         let artworks = [];
+        let sha;
         try {
-            const data = await fs.readFile(artworksPath, 'utf8');
-            artworks = JSON.parse(data);
+            const { data } = await octokit.repos.getContent({
+                owner: repoOwner,
+                repo: repoName,
+                path: 'data/artworks.json',
+                ref: branch
+            });
+            sha = data.sha;
+            const content = Buffer.from(data.content, 'base64').toString('utf8');
+            artworks = JSON.parse(content);
         } catch (error) {
-            if (error.code !== 'ENOENT') throw error;
+            if (error.status !== 404) throw error;
         }
 
         // Yeni eseri ekle
         const newArtwork = {
             title: fields.title,
             category: fields.category,
-            main_image: mainImagePath,
-            detail_image_1: detailImage1Path,
-            detail_image_2: detailImage2Path,
+            main_image: `/${mainImagePath}`,
+            detail_image_1: detailImage1Path ? `/${detailImage1Path}` : '',
+            detail_image_2: detailImage2Path ? `/${detailImage2Path}` : '',
             description_tr: fields.description_tr,
             description_en: fields.description_en,
             material_tr: fields.material_tr,
@@ -104,25 +118,6 @@ exports.handler = async function (event, context) {
 
         // artworks.json dosyasını güncelle
         const newArtworksJson = JSON.stringify(artworks, null, 2);
-
-        // GitHub'a commit yap
-        const repoOwner = 'sukruaslan';
-        const repoName = 'sukruaslanart';
-        const branch = 'main';
-
-        let sha;
-        try {
-            const { data } = await octokit.repos.getContent({
-                owner: repoOwner,
-                repo: repoName,
-                path: 'data/artworks.json',
-                ref: branch
-            });
-            sha = data.sha;
-        } catch (error) {
-            if (error.status !== 404) throw error;
-        }
-
         await octokit.repos.createOrUpdateFileContents({
             owner: repoOwner,
             repo: repoName,
