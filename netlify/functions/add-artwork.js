@@ -42,6 +42,14 @@ exports.handler = async function (event, context) {
             }
         }
 
+        console.log('Fields:', fields);
+        console.log('Files:', files);
+
+        // main_image alanını kontrol et
+        if (!files.main_image || !files.main_image.filename) {
+            return { statusCode: 400, body: JSON.stringify({ error: 'Ana görsel (main_image) zorunludur' }) };
+        }
+
         // Görselleri GitHub'a yükle
         const repoOwner = 'sukruaslan';
         const repoName = 'sukruaslanart';
@@ -58,7 +66,7 @@ exports.handler = async function (event, context) {
         });
 
         let detailImage1Path = '';
-        if (files.detail_image_1) {
+        if (files.detail_image_1 && files.detail_image_1.filename) {
             detailImage1Path = `images/uploads/${Date.now()}-${files.detail_image_1.filename}`;
             await octokit.repos.createOrUpdateFileContents({
                 owner: repoOwner,
@@ -71,7 +79,7 @@ exports.handler = async function (event, context) {
         }
 
         let detailImage2Path = '';
-        if (files.detail_image_2) {
+        if (files.detail_image_2 && files.detail_image_2.filename) {
             detailImage2Path = `images/uploads/${Date.now()}-${files.detail_image_2.filename}`;
             await octokit.repos.createOrUpdateFileContents({
                 owner: repoOwner,
