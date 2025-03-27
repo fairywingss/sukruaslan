@@ -57,17 +57,16 @@ exports.handler = async function (event, context) {
 
         console.log('Parsed artworks:', artworks);
 
-        // data/artworks.json dosyasını güncelle
-        const artworksJsonPath = path.join(__dirname, '..', 'data', 'artworks.json');
+        // Yeni artworks.json içeriğini oluştur
         const newArtworksJson = JSON.stringify(artworks, null, 2);
 
-        // GitHub'a commit yap
+        // Mevcut artworks.json dosyasını al ve karşılaştır
         const repoOwner = 'sukruaslan'; // GitHub kullanıcı adın
         const repoName = 'sukruaslanart'; // Depo adın
         const branch = 'main'; // Hedef branch
 
-        // Mevcut artworks.json dosyasını al
         let sha;
+        let currentArtworksJson = '';
         try {
             const { data } = await octokit.repos.getContent({
                 owner: repoOwner,
@@ -76,8 +75,18 @@ exports.handler = async function (event, context) {
                 ref: branch
             });
             sha = data.sha;
+            currentArtworksJson = Buffer.from(data.content, 'base64').toString('utf8');
         } catch (error) {
             if (error.status !== 404) throw error;
+        }
+
+        // Eğer içerik değişmediyse, commit yapmayı atla
+        if (currentArtworksJson === newArtworksJson) {
+            console.log('data/artworks.json zaten güncel, commit yapılmasına gerek yok');
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ message: 'Artworks are already up to date' })
+            };
         }
 
         // Dosyayı güncelle
