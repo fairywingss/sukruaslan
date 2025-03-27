@@ -4,15 +4,12 @@ const { Octokit } = require('@octokit/rest');
 
 exports.handler = async function (event, context) {
     try {
-        // Ortam değişkenlerinden GITHUB_TOKEN'ı al
         const githubToken = process.env.GITHUB_TOKEN;
-        if (!githubToken) {
-            throw new Error('GITHUB_TOKEN ortam değişkeni bulunamadı');
-        }
+        if (!githubToken) throw new Error('GITHUB_TOKEN ortam değişkeni bulunamadı');
 
         const octokit = new Octokit({ auth: githubToken });
 
-        // data/artworks/ klasöründeki tüm .md dosyalarını oku
+        // data/artworks/ klasöründeki .md dosyalarını oku
         const artworksDir = path.join(__dirname, '..', 'data', 'artworks');
         const files = await fs.readdir(artworksDir);
         const mdFiles = files.filter(file => file.endsWith('.md'));
@@ -21,8 +18,6 @@ exports.handler = async function (event, context) {
         for (const file of mdFiles) {
             const filePath = path.join(artworksDir, file);
             const content = await fs.readFile(filePath, 'utf8');
-
-            // Markdown dosyasından frontmatter'ı ayrıştır
             const frontmatterMatch = content.match(/^---\n([\s\S]+?)\n---/);
             if (!frontmatterMatch) continue;
 
@@ -32,12 +27,9 @@ exports.handler = async function (event, context) {
 
             for (const line of frontmatterLines) {
                 const [key, value] = line.split(':').map(part => part.trim());
-                if (key && value) {
-                    artwork[key] = value.startsWith('/') ? value : value.replace(/"/g, '');
-                }
+                if (key && value) artwork[key] = value.startsWith('/') ? value : value.replace(/"/g, '');
             }
 
-            // Gerekli alanların varlığını kontrol et
             if (artwork.title && artwork.category) {
                 artworks.push({
                     title: artwork.title,
@@ -56,14 +48,12 @@ exports.handler = async function (event, context) {
         }
 
         console.log('Parsed artworks:', artworks);
-
-        // Yeni artworks.json içeriğini oluştur
         const newArtworksJson = JSON.stringify(artworks, null, 2);
 
         // Mevcut artworks.json dosyasını al ve karşılaştır
-        const repoOwner = 'sukruaslan'; // GitHub kullanıcı adın
-        const repoName = 'sukruaslanart'; // Depo adın
-        const branch = 'main'; // Hedef branch
+        const repoOwner = 'sukruaslan';
+        const repoName = 'sukruaslanart';
+        const branch = 'main';
 
         let sha;
         let currentArtworksJson = '';
@@ -80,7 +70,7 @@ exports.handler = async function (event, context) {
             if (error.status !== 404) throw error;
         }
 
-        // Eğer içerik değişmediyse, commit yapmayı atla
+        // Eğer içerik aynıysa commit yapma
         if (currentArtworksJson === newArtworksJson) {
             console.log('data/artworks.json zaten güncel, commit yapılmasına gerek yok');
             return {
@@ -101,7 +91,6 @@ exports.handler = async function (event, context) {
         });
 
         console.log('data/artworks.json başarıyla güncellendi');
-
         return {
             statusCode: 200,
             body: JSON.stringify({ message: 'Artworks updated successfully' })
