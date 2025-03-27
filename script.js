@@ -15,10 +15,10 @@ let hasAppeared = [];
 let isProfileVisible = true;
 let isAutoScrollPaused = false;
 
-// Eserleri Netlify Function üzerinden yükleme
+// Eserleri data/artworks.json dosyasından yükleme
 async function loadArtworks() {
     try {
-        const response = await fetch('/api/get-artworks');
+        const response = await fetch('/data/artworks.json');
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -52,8 +52,11 @@ async function loadArtworks() {
         totalSlides = artworks.length;
         hasAppeared = Array(totalSlides).fill(false);
         filterArtworks('all');
+
+        return loadedArtworks; // loadedArtworks'ü döndür
     } catch (error) {
         console.error('Eserler yüklenirken hata oluştu:', error);
+        return [];
     }
 }
 
@@ -330,7 +333,7 @@ document.querySelector('.gallery-container').addEventListener('touchmove', (e) =
 });
 
 // Eser resmine tıklama olayı (hem mobil hem masaüstü için pop-up galeri)
-function setupArtworkImages() {
+function setupArtworkImages(loadedArtworks) {
     document.querySelectorAll('.artwork-image').forEach((image) => {
         image.setAttribute('draggable', 'false');
         image.setAttribute('onselectstart', 'return false');
@@ -365,7 +368,6 @@ function setupArtworkImages() {
             mainImage.src = image.src;
             galleryImagesContainer.appendChild(mainImage);
 
-            const artwork = Array.from(artworks).find(art => art.querySelector('.artwork-image').getAttribute('data-artwork-id') === artworkId);
             const artworkData = loadedArtworks.find(art => art.main_image === image.src);
             if (artworkData.detail_image_1) {
                 const detailImage1 = document.createElement('img');
@@ -448,24 +450,8 @@ function resetAutoScroll() {
 }
 
 // Eserleri yükle ve başlat
-let loadedArtworks = [];
-loadArtworks().then(() => {
-    loadedArtworks = Array.from(document.querySelectorAll('.artwork')).map(art => {
-        const label = art.querySelector('.label');
-        return {
-            main_image: art.querySelector('.artwork-image').src,
-            detail_image_1: art.querySelector('.artwork-image').getAttribute('data-detail-image-1'),
-            detail_image_2: art.querySelector('.artwork-image').getAttribute('data-detail-image-2'),
-            title: label.querySelector('h2').textContent,
-            description_tr: label.querySelector('p:not(.artwork-details)').getAttribute('data-lang-tr'),
-            description_en: label.querySelector('p:not(.artwork-details)').getAttribute('data-lang-en'),
-            material_tr: label.querySelector('.artwork-details').getAttribute('data-lang-tr').split(', ')[0].split(': ')[1],
-            size_tr: label.querySelector('.artwork-details').getAttribute('data-lang-tr').split(', ')[1],
-            material_en: label.querySelector('.artwork-details').getAttribute('data-lang-en').split(', ')[0].split(': ')[1],
-            size_en: label.querySelector('.artwork-details').getAttribute('data-lang-en').split(', ')[1]
-        };
-    });
-    setupArtworkImages();
+loadArtworks().then((loadedArtworks) => {
+    setupArtworkImages(loadedArtworks);
     goToSlide(0);
     startAutoScroll();
     changeLanguage('tr');
