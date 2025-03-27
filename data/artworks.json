@@ -80,14 +80,14 @@
     {
         "title": "Don Kişot’un Düşüşü",
         "category": "heykel",
-        "main_image": "/images/uploads/don-kisotun-dususu-main.jpg",
-        "detail_image_1": "/images/uploads/don-kisotun-dususu-detail1.jpg",
-        "detail_image_2": "/images/uploads/don-kisotun-dususu-detail2.jpg",
-        "description_tr": "Don Kişot’un düşüşünü anlatan bir heykel",
-        "description_en": "A sculpture depicting the fall of Don Quixote",
+        "main_image": "/images/uploads/post-2-.webp",
+        "detail_image_1": "/images/uploads/post-1-1-.webp",
+        "detail_image_2": "",
+        "description_tr": "Metal Sanatı",
+        "description_en": "Metal Art",
         "material_tr": "Metal",
-        "size_tr": "50 x 30 x 20 cm",
+        "size_tr": "51x64x31 cm",
         "material_en": "Metal",
-        "size_en": "50 x 30 x 20 cm"
+        "size_en": "51x64x31 cm"
     }
 ]
