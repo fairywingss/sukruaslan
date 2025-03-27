@@ -9,10 +9,24 @@ exports.handler = async function (event, context) {
 
         const octokit = new Octokit({ auth: githubToken });
 
-        // data/artworks/ klasöründeki .md dosyalarını oku
-        const artworksDir = path.join(__dirname, '..', 'data', 'artworks');
-        const files = await fs.readdir(artworksDir);
+        // data/artworks/ klasörüne doğru yolu belirle
+        const artworksDir = path.join(__dirname, '..', '..', 'data', 'artworks'); // Netlify Functions için doğru yol
+        let files;
+        try {
+            files = await fs.readdir(artworksDir);
+        } catch (error) {
+            console.error('Klasör okuma hatası:', error);
+            throw new Error(`Klasör okunamadı: ${artworksDir}`);
+        }
+
         const mdFiles = files.filter(file => file.endsWith('.md'));
+        if (mdFiles.length === 0) {
+            console.log('Hiçbir .md dosyası bulunamadı');
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ message: 'Hiçbir .md dosyası bulunamadı' })
+            };
+        }
 
         const artworks = [];
         for (const file of mdFiles) {
@@ -70,7 +84,6 @@ exports.handler = async function (event, context) {
             if (error.status !== 404) throw error;
         }
 
-        // Eğer içerik aynıysa commit yapma
         if (currentArtworksJson === newArtworksJson) {
             console.log('data/artworks.json zaten güncel, commit yapılmasına gerek yok');
             return {
@@ -79,7 +92,6 @@ exports.handler = async function (event, context) {
             };
         }
 
-        // Dosyayı güncelle
         await octokit.repos.createOrUpdateFileContents({
             owner: repoOwner,
             repo: repoName,
