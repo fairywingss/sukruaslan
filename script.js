@@ -24,7 +24,6 @@ async function loadArtworks() {
         }
         const loadedArtworks = await response.json();
 
-        // Eserleri HTML'e ekle
         loadedArtworks.forEach((artwork, index) => {
             const artworkElement = document.createElement('div');
             artworkElement.classList.add('artwork');
@@ -47,13 +46,12 @@ async function loadArtworks() {
             galleryWall.appendChild(artworkElement);
         });
 
-        // Eserleri güncelle
         artworks = document.querySelectorAll('.artwork');
         totalSlides = artworks.length;
         hasAppeared = Array(totalSlides).fill(false);
         filterArtworks('all');
 
-        return loadedArtworks; // loadedArtworks'ü döndür
+        return loadedArtworks;
     } catch (error) {
         console.error('Eserler yüklenirken hata oluştu:', error);
         return [];
